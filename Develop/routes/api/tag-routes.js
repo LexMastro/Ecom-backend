@@ -7,7 +7,13 @@ router.get('/', async (req, res) => {
   // find all tags
   // be sure to include its associated Product data
   try {
-    const allTags = await Tag.findAll();
+    const allTags = await Tag.findAll({
+      include: [{ model: Product }]
+    });
+    if (!allTags) {
+      res.status(404).json({ message: 'No tags found' });
+      return;
+    }
     res.status(200).json(allTags);
   } catch (err) {
     res.status(500).json(err);
@@ -20,7 +26,7 @@ router.get('/:id', async (req, res) => {
   try {
     const tagData = await Tag.findByPk(req.params.id, {
       // JOIN with products, using the tag through table
-      include: [{ model: Product, through: ProductTag, as: 'product_tag' }]
+      include: [{ model: Product }]
     });
 
     if (!tagData) {
@@ -44,26 +50,26 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
-  // update a tag's name by its `id` value
-  Tag.update(
-    {
-      // All the fields you can update and the data attached to the request body.
-      tag_name: req.body.tag_name,
-    },
-    {
-      // Gets the tags based on the isbn given in the request parameters
-      where: {
-        id: req.params.id
+// update a tag's name by its `id` value
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedTag = await Tag.update(
+      {
+        tag_name: req.body.tag_name,
       },
+      {
+        // Gets a tag based on the id given in the request parameters
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+    if (updatedTag) {
+      res.status(200).json(updatedTag);
     }
-  )
-    .then((updatedtag) => {
-      // Sends the updated tag as a json response
-      console.log(updatedtag);
-      res.json(updatedtag);
-    })
-    .catch((err) => res.json(err));
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 router.delete('/:id', async (req, res) => {

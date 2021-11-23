@@ -42,32 +42,38 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   // create a new category
   try {
-    const categoryData = await Category.create(req.body);
-    res.status(200).json(categoryData);
+    const categoryData = await Category.create(
+      {
+        category_name: req.body.category_name,
+      });
+    if (categoryData) {
+      res.status(200).json(categoryData);
+    }
   } catch (err) {
     res.status(400).json(err);
   }
 });
 
-router.put('/:id', (req, res) => {
-  // update a category by its `id` value
-  Category.update(
-    {
-      // All the fields you can update and the data attached to the request body.
-      category_name: req.body.category_name,
-    },
-    {
-      // Gets the categories based on the isbn given in the request parameters
-      where: {
-        id: req.params.id
+// update a category by its `id` value
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedCategory = await Category.update(
+      {
+        category_name: req.body.category_name,
       },
+      {
+        // Gets a category based on the id given in the request parameters
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+    if (updatedCategory) {
+      res.status(200).json(updatedCategory);
     }
-  )
-    .then((updatedCategory) => {
-      // Sends the updated category as a json response
-      res.json(updatedCategory);
-    })
-    .catch((err) => res.json(err));
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 // delete a category by its `id` value
