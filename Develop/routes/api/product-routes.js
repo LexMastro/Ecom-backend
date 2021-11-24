@@ -81,17 +81,15 @@ router.post('/', async (req, res) => {
 });
 
 // update product
-router.put('/:id', (req, res) => {
+router.put("/:id", async (req, res) => {
+
   // update product data
   Product.update(req.body, {
-    where: {
-      id: req.params.id,
-    },
+    where: { id: req.params.id },
   })
-    .then((_product) => {
+    .then((product) => {
       // find all associated tags from ProductTag
-
-      return ProductTag.findAll({ where: { product_id: req.params.id } })
+      return ProductTag.findAll({ where: { product_id: req.params.id } });
     })
     .then((productTags) => {
       // get list of current tag_ids

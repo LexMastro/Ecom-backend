@@ -25,7 +25,7 @@ router.get('/:id', async (req, res) => {
   try {
     const categoryData = await Category.findByPk(req.params.id, {
       // JOIN with products, using the tag through table
-      include: [{ model: Product, through: Tag }]
+      include: [{ model: Product }]
     });
 
     if (!categoryData) {
@@ -42,13 +42,8 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   // create a new category
   try {
-    const categoryData = await Category.create(
-      {
-        category_name: req.body.category_name,
-      });
-    if (categoryData) {
-      res.status(200).json(categoryData);
-    }
+    const categoryData = await Category.create(req.body)
+    res.status(200).json(categoryData);
   } catch (err) {
     res.status(400).json(err);
   }
